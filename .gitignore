@@ -10,3 +10,6 @@ docker-compose.override.yml
 # System files
 *.log
 *.DS_Store
+
+# Sensitive info
+.env
