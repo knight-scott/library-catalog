@@ -1,0 +1,12 @@
+# Node modules
+node_modules/
+
+# Python virtual environments
+venv/
+
+# Docker
+docker-compose.override.yml
+
+# System files
+*.log
+*.DS_Store
