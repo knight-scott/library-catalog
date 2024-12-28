@@ -8,7 +8,7 @@ WORKDIR /backend
 COPY ./backend /backend
 
 # Copy the requirements.txt file from the root directory to the container
-COPY requirements.txt /backend/requirements.txt
+COPY ../requirements.txt /backend/requirements.txt
 
 # Install dependencies
 RUN pip install --no-cache-dir -r /backend/requirements.txt
