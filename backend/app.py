@@ -1,6 +1,7 @@
 from flask import Flask 
 from routes.books import books_bp
-from routes.libraries import libraries_bp
+# uncomment when libraries blueprint is complete
+# from routes.libraries import libraries_bp
 
 app = Flask(__name__)
 
