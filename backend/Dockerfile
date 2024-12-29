@@ -14,7 +14,12 @@ COPY ../requirements.txt /backend/requirements.txt
 RUN pip install --no-cache-dir -r /backend/requirements.txt
 
 # Expose the Flask app port
-EXPOSE 5000
+EXPOSE 5001
 
 # Run the Flask app
+# Comment out for production
 CMD ["python", "app.py"]
+
+# Run Gunicorn to serve the app in production
+# comment out Flask for development
+# CMD ["gunicorn", "-b", "0.0.0.0:5001", "backend.app:app"]
