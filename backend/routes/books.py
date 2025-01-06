@@ -74,3 +74,59 @@ def get_books(title, author, library_id):
 
     return jsonify(books), 200
 
+# Retrieve a book by ID
+@books_bp.route('/<int:book_id>', methods=['GET'])
+def get_book_by_id(book_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM Books WHERE id = %s", (book_id,))
+    book = cursor.fetchone()
+    conn.close()
+
+    if not book:
+        return jsonify({'error': 'Book not found'}), 404
+
+    return jsonify(book), 200
+
+# Update a book
+@books_bp.route('/<int:book_id>', methods=['PUT'])
+def update_book(book_id):
+    data = request.json
+    fields = []
+    values = []
+
+    for field in ['title', 'author', 'isbn', 'publication_year', 'format', 'library_id']:
+        if field in data:
+            fields.append(f"{field} = %s")
+            values.append(data[field])
+
+    if not fields:
+        return jsonify({'error': 'No fields to update provided'}), 400
+
+    query = f"UPDATE Books SET {', '.join(fields)} WHERE id = %s"
+    values.append(book_id)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, values)
+    conn.commit()
+    conn.close()
+
+    if cursor.rowcount == 0:
+        return jsonify({'error': 'Book not found'}), 404
+
+    return jsonify({'message': 'Book updated successfully'}), 200
+
+# Delete a book
+@books_bp.route('/<int:book_id>', methods=['DELETE'])
+def delete_book(book_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Books WHERE id = %s", (book_id,))
+    conn.commit()
+    conn.close()
+
+    if cursor.rowcount == 0:
+        return jsonify({'error': 'Book not found'}), 404
+
+    return jsonify({'message': 'Book deleted successfully'}), 200
