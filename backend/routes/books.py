@@ -46,6 +46,8 @@ def get_books(title, author, library_id):
     title = request.args.get('title')
     author = request.args.get('author')
     library_id = request.args.get('library_id')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
 
     query = "SELECT * FROM books"
     filters = []
@@ -66,11 +68,32 @@ def get_books(title, author, library_id):
     if filters:
         query += " WHERE " + " AND ".join(filters)
 
+    # add pagination
+    offset = (page - 1) * per_page
+    query += " LIMIT %s OFFSET %s"
+    params.extend([per_page, offset])
+
     conn = get_db_connection()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query, params)
     books = cursor.fetchall()
+
+    # Count total results for pagination metadata
+    cursor.execute("SELECT COUNT(*) as total FROM books" + (" WHERE " + " AND ".join(filters) if filters else ""), params[:-2])
+    total_books = cursor.fetchone()['total']
+
     conn.close()
+
+    # Construct the response with pagination metadata
+    response = {
+        "books": books,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total": total_books, 
+            "total_pages": (total_books + per_page - 1) // per_page # Calculate total pages
+        }
+    }
 
     return jsonify(books), 200
 
